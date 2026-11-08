@@ -36,3 +36,7 @@ bin/
 # Docker
 *.log
 
+# Keys & Certificates
+*.pem
+*.key
+
