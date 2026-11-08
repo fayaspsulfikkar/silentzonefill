@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  silentzone:
+    build: .
+    container_name: silentzone-bot
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data            # SQLite database (persistent)
+      - ./screenshots:/app/screenshots  # Diagnostic screenshots
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # Uncomment to add nginx TLS reverse proxy (configure nginx.conf separately)
+  # nginx:
+  #   image: nginx:alpine
+  #   ports:
+  #     - "443:443"
+  #     - "80:80"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf
+  #     - /etc/letsencrypt:/etc/letsencrypt:ro
+  #   depends_on:
+  #     - silentzone
+

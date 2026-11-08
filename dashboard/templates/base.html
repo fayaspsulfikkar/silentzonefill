@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Silent Zone Automation{% endblock %}</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem;
+            background: #f4f4f8;
+            color: #1a1a2e;
+        }
+        h1 { margin-bottom: 0.25rem; }
+        .subtitle { color: #666; margin-top: 0; margin-bottom: 1.5rem; }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+        }
+        .status-SUBMITTED   { color: #16a34a; font-weight: 700; }
+        .status-FAILED,
+        .status-SEATS_FULL  { color: #dc2626; font-weight: 700; }
+        .status-WAITING,
+        .status-ANNOUNCEMENT_DETECTED,
+        .status-FORM_VALIDATING,
+        .status-FORM_OPENED,
+        .status-FORM_FILLED,
+        .status-SUBMISSION_PENDING { color: #d97706; font-weight: 700; }
+        .status-MANUAL_INTERVENTION_REQUIRED { color: #7c3aed; font-weight: 700; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid #e5e7eb; }
+        th { background: #f9fafb; font-weight: 600; }
+        tr:last-child td { border-bottom: none; }
+        input[type=url], input[type=text] {
+            width: 100%; padding: 0.6rem 0.75rem;
+            border: 1px solid #d1d5db; border-radius: 6px;
+            font-size: 1rem; margin-bottom: 0.75rem;
+        }
+        button {
+            background: #1a1a2e; color: white; border: none;
+            padding: 0.65rem 1.75rem; border-radius: 6px;
+            cursor: pointer; font-size: 1rem;
+        }
+        button:hover { background: #2d2d50; }
+    </style>
+</head>
+<body>
+    <h1>🔇 Silent Zone Registration Bot</h1>
+    <p class="subtitle">Automated registration system for the monthly Silent Zone programme.</p>
+    {% block content %}{% endblock %}
+</body>
+</html>
+

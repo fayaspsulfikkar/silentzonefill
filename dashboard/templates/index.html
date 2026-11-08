@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Silent Zone — Dashboard{% endblock %}
+{% block content %}
+
+<div class="card">
+    <h2>Manual URL Submission</h2>
+    <p>Paste the Google Forms registration URL here if Tasker did not auto-forward it.</p>
+    <form method="post" action="/api/registration/manual">
+        <input type="url" name="form_url"
+               placeholder="https://docs.google.com/forms/d/e/.../viewform"
+               required autofocus>
+        <button type="submit" id="submitBtn">▶ Start Registration</button>
+    </form>
+</div>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Recent Registrations</h2>
+        <span id="liveIndicator" style="font-size: 0.85rem; color: #16a34a;">● Live Auto-Refresh (3s)</span>
+    </div>
+    
+    <div id="tableContainer">
+    {% if attempts %}
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Status</th>
+                <th>Source</th>
+                <th>Announced</th>
+                <th>Submitted</th>
+                <th>Duration</th>
+                <th>Error / Details</th>
+            </tr>
+        </thead>
+        <tbody id="attemptsBody">
+        {% for a in attempts %}
+            <tr>
+                <td>{{ a.id }}</td>
+                <td><span class="status-{{ a.status }}">{{ a.status }}</span></td>
+                <td>{{ a.announcement_source }}</td>
+                <td>{{ a.announced_at or '—' }}</td>
+                <td>{{ a.submitted_at or '—' }}</td>
+                <td>
+                    {% if a.processing_duration_ms %}
+                        {{ (a.processing_duration_ms / 1000) | round(1) }}s
+                    {% else %}—{% endif %}
+                </td>
+                <td>{{ a.error_detail or '—' }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p style="color:#666;" id="emptyMsg">No registration attempts yet.</p>
+    {% endif %}
+    </div>
+</div>
+
+<script>
+// Auto-refresh table every 3 seconds to reflect real-time status transitions
+async function pollStatus() {
+    try {
+        const resp = await fetch('/api/registration/status');
+        if (!resp.ok) return;
+        const attempts = await resp.json();
+        if (!attempts || attempts.length === 0) return;
+
+        let rows = '';
+        for (const a of attempts) {
+            const dur = a.processing_duration_ms ? (a.processing_duration_ms / 1000).toFixed(1) + 's' : '—';
+            rows += `<tr>
+                <td>${a.id}</td>
+                <td><span class="status-${a.status}">${a.status}</span></td>
+                <td>${a.announcement_source}</td>
+                <td>${a.announced_at || '—'}</td>
+                <td>${a.submitted_at || '—'}</td>
+                <td>${dur}</td>
+                <td>${a.error_detail || '—'}</td>
+            </tr>`;
+        }
+        const tbody = document.getElementById('attemptsBody');
+        if (tbody) {
+            tbody.innerHTML = rows;
+        } else {
+            // Replace empty message with table
+            const container = document.getElementById('tableContainer');
+            container.innerHTML = `<table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Status</th>
+                        <th>Source</th>
+                        <th>Announced</th>
+                        <th>Submitted</th>
+                        <th>Duration</th>
+                        <th>Error / Details</th>
+                    </tr>
+                </thead>
+                <tbody id="attemptsBody">${rows}</tbody>
+            </table>`;
+        }
+    } catch (e) {
+        // Ignore network glitches
+    }
+}
+setInterval(pollStatus, 3000);
+</script>
+
+{% endblock %}
