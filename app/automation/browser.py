@@ -34,6 +34,7 @@ class BrowserManager:
                 "--disable-setuid-sandbox",
                 "--disable-dev-shm-usage",
                 "--disable-blink-features=AutomationControlled",
+                "--disable-gpu",
             ],
         )
         logger.info("Browser ready.")

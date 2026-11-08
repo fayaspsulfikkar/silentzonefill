@@ -12,9 +12,11 @@ import pytest_asyncio
 from playwright.async_api import Browser, BrowserContext, Page, async_playwright
 
 # Point to a test-only SQLite DB and safe test credentials
+os.environ.setdefault("APP_ENV", "test")
 os.environ.setdefault(
     "DATABASE_URL", "sqlite+aiosqlite:///./data/test_silentzone.db"
 )
+os.environ.setdefault("APP_SECRET_KEY", "test-secret-key-16chars")
 os.environ.setdefault("WEBHOOK_SECRET", "test-secret")
 os.environ.setdefault("DASHBOARD_USERNAME", "admin")
 os.environ.setdefault("DASHBOARD_PASSWORD", "test-password")

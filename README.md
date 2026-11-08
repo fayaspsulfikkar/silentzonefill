@@ -80,7 +80,7 @@ For full VPS setup instructions, region recommendations (Mumbai / India for 5–
 ## Running Tests
 
 ```bash
-# Run all 34 unit and mock tests
+# Run all 43 unit, security validation, and mock tests
 pytest tests/ -m "not live" -v
 
 # Run live test against your Google Form

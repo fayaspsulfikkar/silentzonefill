@@ -234,3 +234,51 @@ async def test_health_check_endpoint():
         resp = await client.get("/health")
         assert resp.status_code == 200
         assert resp.json() == {"status": "ok"}
+
+
+@pytest.mark.asyncio
+async def test_status_endpoints_require_auth():
+    app = create_app()
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Status list without auth -> 401
+        res1 = await client.get("/api/registration/status")
+        assert res1.status_code == 401
+
+        # Status item without auth -> 401
+        res2 = await client.get("/api/registration/1")
+        assert res2.status_code == 401
+
+        # Status with auth -> 200
+        res3 = await client.get(
+            "/api/registration/status", auth=("admin", "test-password")
+        )
+        assert res3.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_production_disables_docs(monkeypatch):
+    monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setenv("APP_SECRET_KEY", "prod-secret-key-at-least-16-chars")
+    monkeypatch.setenv("WEBHOOK_SECRET", "prod-webhook-secret-at-least-16-chars")
+    monkeypatch.setenv("DASHBOARD_PASSWORD", "prod-secure-password-123")
+    monkeypatch.setenv("REG_NAME", "Prod User")
+    monkeypatch.setenv("REG_PHONE", "9876543210")
+    monkeypatch.setenv("REG_BATCH", "BCK-100")
+
+    from app.config import get_settings
+    get_settings.cache_clear()
+
+    try:
+        app = create_app()
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            resp = await client.get("/docs")
+            assert resp.status_code == 404
+            resp_openapi = await client.get("/openapi.json")
+            assert resp_openapi.status_code == 404
+    finally:
+        get_settings.cache_clear()
+

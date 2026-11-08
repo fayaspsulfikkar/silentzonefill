@@ -49,12 +49,16 @@ async def lifespan(app: FastAPI):
 
 
 def create_app() -> FastAPI:
+    settings = get_settings()
+    is_prod = (settings.app_env or "production").strip().lower() in ("prod", "production")
+
     app = FastAPI(
         title="Silent Zone Registration Automation",
         version="0.1.0",
         lifespan=lifespan,
-        docs_url="/docs",
+        docs_url=None if is_prod else "/docs",
         redoc_url=None,
+        openapi_url=None if is_prod else "/openapi.json",
     )
 
     # Routers
@@ -65,8 +69,9 @@ def create_app() -> FastAPI:
     app.include_router(manual.router)
     app.include_router(status.router)
 
-    @app.get("/health")
+    @app.get("/health", tags=["system"])
     async def health():
+        """Public health check endpoint for Docker, AWS ALB/target groups, and monitoring."""
         return {"status": "ok"}
 
     return app
